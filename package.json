@@ -47,5 +47,12 @@
     "react-test-renderer": "18.2.0",
     "typescript": "~5.3.3"
   },
+  "expo": {
+    "install": {
+      "exclude": [
+        "react-native-safe-area-context"
+      ]
+    }
+  },
   "private": true
 }
