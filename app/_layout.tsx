@@ -1,7 +1,8 @@
 import { useFonts } from 'expo-font';
 import '../global.css';
-import { SplashScreen, Stack } from 'expo-router';
-import { useEffect } from 'react';
+import { router, SplashScreen, Stack } from 'expo-router';
+import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -19,10 +20,23 @@ const RootLayout = () => {
     "Poppins-Thin": require("../assets/fonts/Poppins-Thin.ttf"),
   });
 
+  const [authChecked, setAuthChecked] = useState(false);
+
+  const checkAuthStatus = async () => {
+    const token = await AsyncStorage.getItem("access_token");
+    if (token) {
+      router.replace("/(tabs)/profile");
+    } else {
+      router.replace("/sign-in");
+    }
+    setAuthChecked(true);
+  };
+
   useEffect(() => {
     if (error) throw error;
 
     if (fontsLoaded) {
+      checkAuthStatus()
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, error]);
@@ -34,6 +48,10 @@ const RootLayout = () => {
   return (
     <Stack>
       <Stack.Screen name='index' options={{ headerShown: false }}/>
+      <Stack.Screen name='(auth)' options={{ headerShown: false }}/>
+      <Stack.Screen name='(tabs)' options={{ headerShown: false }}/>
     </Stack>
   )
 }
+
+export default RootLayout;
