@@ -8,6 +8,8 @@ type FormFieldProps = {
     handleChangeText: (text: string) => void;
     otherStyles?: string;
     keyboardType?: KeyboardTypeOptions;
+    multiline?: boolean;
+    inputHeight?: number;
 };
 
 const FormField: React.FC<FormFieldProps> = ({
@@ -17,6 +19,8 @@ const FormField: React.FC<FormFieldProps> = ({
     handleChangeText,
     otherStyles,
     keyboardType = "default",
+    multiline = false,
+    inputHeight = 100,
     ...props
 }) => {
 
@@ -27,20 +31,21 @@ const FormField: React.FC<FormFieldProps> = ({
                 {title}
             </Text>
 
-            <View className="border-2 border-black-200 flex-row w-full h-16 px-4 bg-black-100 rounded-2xl focus:border-secondary items-center">
+            <View className={`border-2 border-black-200 w-full px-4 bg-black-100 rounded-2xl ${multiline ? `h-[${inputHeight}px] items-start` : 'h-16 items-center'}`}>
                 <TextInput
-                    className="flex-1 text-white font-psemibold text-base"
+                    className={`text-white font-psemibold text-base flex-1 ${multiline ? 'text-top' : 'text-center'}`}
                     value={value}
                     placeholder={placeholder}
                     placeholderTextColor="#7b7b8b"
                     onChangeText={handleChangeText}
                     secureTextEntry={title === 'Password' && !showPassword}
                     keyboardType={keyboardType}
+                    multiline={multiline} // Enable multiline
                 />
 
-                {title === 'Password' && (
+                {title === 'Password' && !multiline && (
                     <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                        <Image className="w-6 h-6" resizeMode='contain' source={!showPassword ? require('../constants/icons/eye.png') : require('../constants/icons/eyehide.png')}/>
+                        <Image className="w-6 h-6" resizeMode="contain" source={!showPassword ? require('../constants/icons/eye.png') : require('../constants/icons/eyehide.png')} />
                     </TouchableOpacity>
                 )}
             </View>

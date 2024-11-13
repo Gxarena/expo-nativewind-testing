@@ -3,12 +3,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const BASE_URL = "https://chefli-dev-165050008712.us-central1.run.app";
 
 const request = async (url, method = "GET", body = null, token = null, customHeaders = {}) => {
-  const headers = {
-      ...customHeaders, // Allows custom headers to be added
-  };
+    const headers = {
+        "Content-Type": "application/json", 
+        ...customHeaders,
+    };
 
   if (!token) {
-    token = await AsyncStorage.getItem("access_token"); // Get token from storage
+    token = await AsyncStorage.getItem("access_token");
   }
 
   if (token) {
@@ -18,15 +19,14 @@ const request = async (url, method = "GET", body = null, token = null, customHea
   const options = {
       method,
       headers,
+      ...(body && { body: JSON.stringify(body) })
   };
-
-  if (body) {
-      options.body = body; // Do not stringify, since URL-encoded data needs to be in string format
-  }
 
   const response = await fetch(`${BASE_URL}${url}`, options);
 
   if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Error ${response.status}: ${errorText}`);
       throw new Error(`Error: ${response.status} ${response.statusText}`);
   }
 
