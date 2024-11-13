@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { Button, Image, View, Alert, SafeAreaView, Text } from 'react-native';
+import { Button, Image, View, Alert, SafeAreaView, Text, ScrollView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import CustomButton from '@/components/CustomButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import { getUploadUrl, processImage } from '@/api/api'
 
 const profile = () => {
   const [image, setImage] = useState<string | null>(null);
   const [imageFormat, setImageFormat] = useState<string | null>(null)
+  const [imageIngredients, setImageIngredients] = useState<string[]>([]);
 
   const getImageFormat = (uri?: string) => {
     if (typeof uri === "string" && uri.includes('.')) {
@@ -15,6 +17,41 @@ const profile = () => {
         return extension || null;
     }
     return null;
+  };
+
+  const uriToBlob = async (uri) => {
+    const response = await fetch(uri);
+    return await response.blob();
+  };
+
+  const uploadImageToSignedUrl = async (uploadUrl, imageUri, contentType) => {
+    try {
+      // Convert the image URI to a Blob
+      const imageBlob = await uriToBlob(imageUri);
+
+      // Make the PUT request to upload the image
+      const response = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': contentType,
+        },
+        body: imageBlob,
+      });
+
+      // Check the response status
+      if (response.status === 200) {
+        console.log("Image uploaded successfully!");
+        return true;
+      } else {
+        console.error("Failed to upload image:", response.status);
+        Alert.alert("Upload failed", `Error code: ${response.status}`);
+        return false;
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      Alert.alert("Upload failed", error.message);
+      return false;
+    }
   };
 
   // Function to pick an image from the library
@@ -35,9 +72,38 @@ const profile = () => {
     });
 
     if (!result.canceled) {
-      const format = getImageFormat(result.assets[0].uri);
-      setImageFormat(format);
-      setImage(result.assets[0].uri);
+      const uri = result.assets[0].uri;
+      const format = getImageFormat(uri);
+      console.log('Image URI:', uri);  // Log the URI
+      console.log('Detected image format:', format);
+      const adjustedFormat = format === 'jpg' ? 'jpeg' : format;
+      setImageFormat(adjustedFormat);
+      setImage(uri);
+      
+      try {
+        const contentType = 'image/' + adjustedFormat
+        console.log('content type', contentType)
+        const uploadURLResponse = await getUploadUrl(contentType);
+        if (uploadURLResponse.upload_url && uploadURLResponse.image_id) {
+          console.log('Upload Response:', uploadURLResponse)
+          const uploadStorageResponse = await uploadImageToSignedUrl(uploadURLResponse.upload_url, uri, contentType);
+          if(uploadStorageResponse){
+            Alert.alert("Image uploaded successfully!");
+            try {
+              const processIngredientsResponse = await processImage(uploadURLResponse.image_id)
+              if (processIngredientsResponse) {
+                setImageIngredients(processIngredientsResponse);
+              }
+            } catch (error) {
+              console.error("Error processing image:", error);
+              Alert.alert("Failed to process image", error.message);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        Alert.alert("Failed to upload image", error.message);
+      }
     }
   };
 
@@ -58,9 +124,37 @@ const profile = () => {
     });
 
     if (!result.canceled) {
-      const format = getImageFormat(result.assets[0].uri);
-      setImageFormat(format);
-      setImage(result.assets[0].uri);
+      const uri = result.assets[0].uri;
+      const format = getImageFormat(uri);
+      console.log('image format:', format)
+      const adjustedFormat = format === 'jpg' ? 'jpeg' : format;
+      setImageFormat(adjustedFormat);
+      setImage(uri);
+
+      try {
+        const contentType = 'image/' + adjustedFormat
+        console.log('content type:', contentType)
+        const uploadURLResponse = await getUploadUrl(contentType);
+        if (uploadURLResponse.upload_url && uploadURLResponse.image_id) {
+          console.log('Upload Response:', uploadURLResponse)
+          const uploadStorageResponse = await uploadImageToSignedUrl(uploadURLResponse.upload_url, uri, contentType);
+          if(uploadStorageResponse){
+            Alert.alert("Image uploaded successfully!");
+            try {
+              const processIngredientsResponse = await processImage(uploadURLResponse.image_id)
+              if (processIngredientsResponse) {
+                setImageIngredients(processIngredientsResponse);
+              }
+            } catch (error) {
+              console.error("Error processing image:", error);
+              Alert.alert("Failed to process image", error.message);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        Alert.alert("Failed to upload image", error.message);
+      }
     }
   };
 
@@ -71,7 +165,7 @@ const profile = () => {
 
   return (
     <SafeAreaView className='bg-primary h-full'>
-      <View className='w-full justify-center min-h-[85vh] px-4 my-6'>
+      <ScrollView className='w-full h-full px-4 my-6'>
       <View className='items-center'>
           {image ? (
             <Image 
@@ -105,7 +199,17 @@ const profile = () => {
             handlePress={signOut}
             containerStyles="mt-7"
         />
-      </View>
+        {imageIngredients.length > 0 && (
+          <View className='mt-10'>
+            <Text className='text-2xl text-white text-semibold mb-4 '>Processed Ingredients:</Text>
+            <ScrollView className='bg-black-100 p-4 rounded-lg h-48'>
+              {imageIngredients.map((ingredient, index) => (
+                <Text key={index} className='text-white text-lg mb-2'>{ingredient}</Text>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+      </ScrollView>
     </SafeAreaView>
   )
 }

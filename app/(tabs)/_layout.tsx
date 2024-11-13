@@ -47,6 +47,34 @@ const TabsLayout = () => {
             ),
           }} />
         <Tabs.Screen 
+          name='ingredients' 
+          options={{
+            title: 'Ingredients',
+            headerShown: false,
+            tabBarIcon: ({ color, focused}) => (
+              <TabIcon 
+                icon={require('../../constants/icons/burger.png')}
+                color={color}
+                name='Ingredients'
+                focused={focused}
+              />
+            ),
+          }} />
+          <Tabs.Screen 
+          name='recipe' 
+          options={{
+            title: 'Recipe',
+            headerShown: false,
+            tabBarIcon: ({ color, focused}) => (
+              <TabIcon 
+                icon={require('../../constants/icons/recipe.png')}
+                color={color}
+                name='Recipe'
+                focused={focused}
+              />
+            ),
+          }} />
+        <Tabs.Screen 
           name='profile' 
           options={{
             title: 'Profile',
