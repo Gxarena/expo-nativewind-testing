@@ -19,7 +19,7 @@ const request = async (url, method = "GET", body = null, token = null, customHea
   const options = {
       method,
       headers,
-      ...(body && { body: JSON.stringify(body) })
+      ...(body && { body })
   };
 
   const response = await fetch(`${BASE_URL}${url}`, options);
@@ -43,12 +43,14 @@ export const login = async (username, password, grant_type = "password") => {
       "Content-Type": "application/x-www-form-urlencoded",
   };
 
-  // Encode the body as a URL-encoded string
+  console.log("Email2: ", username, "Password: ", password)
   const body = new URLSearchParams({
       grant_type,
       username,
       password,
   }).toString();
+  
+  console.log("Request body: ", body);
 
   const response = await request("/api/auth/login", "POST", body, null, headers);
 
@@ -79,7 +81,7 @@ export const generateRecipe = async (
         is_vegan: isVegan,
         is_gluten_free: isGlutenFree,
     };
-    return request("/api/recipes/generate", "POST", body, token);
+    return request("/api/recipes/generate", "POST", JSON.stringify(body), token);
 };
 
 export const getRecipeHistory = async (token) => {

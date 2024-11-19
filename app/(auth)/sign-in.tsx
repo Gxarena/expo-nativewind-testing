@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Image, Alert } from "react-native";
+import { View, Text, ScrollView, Image, Alert, TextInput } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FormField from "@/components/FormField";
@@ -18,6 +18,8 @@ const SignIn = () => {
         setIsSubmitting(true);
         try {
             // Call the login API with email and password
+            const trimmedEmail = form.email.trim();
+            const trimmedPassword = form.password.trim();
             const response = await login(form.email, form.password);
 
             Alert.alert("Login Successful", `Welcome back!`);

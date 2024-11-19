@@ -31,9 +31,9 @@ const FormField: React.FC<FormFieldProps> = ({
                 {title}
             </Text>
 
-            <View className={`border-2 border-black-200 w-full px-4 bg-black-100 rounded-2xl ${multiline ? `h-[${inputHeight}px] items-start` : 'h-16 items-center'}`}>
+            <View className={`border-2 border-black-200 flex-row w-full px-4 bg-black-100 rounded-2xl ${multiline ? `h-[${inputHeight}px] items-start` : ''} h-16 items-center`}>
                 <TextInput
-                    className={`text-white font-psemibold text-base flex-1 ${multiline ? 'text-top' : 'text-center'}`}
+                    className={`text-white font-psemibold text-base flex-1 w-full ${multiline ? 'text-top' : ''}`}
                     value={value}
                     placeholder={placeholder}
                     placeholderTextColor="#7b7b8b"
