@@ -6,6 +6,8 @@ type FormFieldProps = {
     value: string;
     placeholder?: string;
     handleChangeText: (text: string) => void;
+    handleBlur?: () => void;
+    textContentType?: string;
     otherStyles?: string;
     keyboardType?: KeyboardTypeOptions;
     multiline?: boolean;
@@ -17,7 +19,9 @@ const FormField: React.FC<FormFieldProps> = ({
     value,
     placeholder = '',
     handleChangeText,
+    handleBlur,
     otherStyles,
+    textContentType = '',
     keyboardType = "default",
     multiline = false,
     inputHeight = 100,
@@ -38,9 +42,11 @@ const FormField: React.FC<FormFieldProps> = ({
                     placeholder={placeholder}
                     placeholderTextColor="#7b7b8b"
                     onChangeText={handleChangeText}
+                    onBlur={handleBlur}
                     secureTextEntry={title === 'Password' && !showPassword}
                     keyboardType={keyboardType}
                     multiline={multiline} // Enable multiline
+                    textContentType={textContentType}
                 />
 
                 {title === 'Password' && !multiline && (

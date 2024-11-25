@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import { Link, router } from "expo-router";
-import { login } from "@/api/api"; // Import login API
+import { login } from "@/api/api";
 
 const SignIn = () => {
     const [form, setForm] = useState({
@@ -18,8 +18,6 @@ const SignIn = () => {
         setIsSubmitting(true);
         try {
             // Call the login API with email and password
-            const trimmedEmail = form.email.trim();
-            const trimmedPassword = form.password.trim();
             const response = await login(form.email, form.password);
 
             Alert.alert("Login Successful", `Welcome back!`);
@@ -46,9 +44,13 @@ const SignIn = () => {
                     <FormField
                         title="Email"
                         value={form.email}
-                        handleChangeText={(e) => setForm({ ...form, email: e })}
+                        handleChangeText={(e) => setForm((prev) => ({ ...prev, email: e }))}
+                        handleBlur={() => {
+                            setForm((prev) => ({ ...prev, email: prev.email.trim() })); // Optional trimming
+                        }}
                         otherStyles="mt-7"
                         keyboardType="email-address"
+                        textContentType="emailAddress"
                     />
                     <FormField
                         title="Password"
@@ -57,6 +59,7 @@ const SignIn = () => {
                             setForm({ ...form, password: e })
                         }
                         otherStyles="mt-7"
+                        textContentType="password"
                     />
 
                     <CustomButton
